@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.concurrent.ThreadLocalRandom;
 
 
+
 /**
  * 签名和AES加解密算法
  *
@@ -60,7 +61,7 @@ public class CryptoUtils {
             Mac mac = Mac.getInstance(HMAC_SHA1);
             mac.init(secretKey);
             byte[] rawHmac = mac.doFinal(content.getBytes(CHARSET_UTF8));
-            return Base64.encodeBase64String(rawHmac);
+            return new String(Base64.encodeBase64(rawHmac));
         } catch (Exception e) {
             logger.error("signWithHmacsha1({}, {}) failed. {}", secret, content, e.getMessage());
         }
@@ -129,7 +130,7 @@ public class CryptoUtils {
             secret = secret.substring(0, AES_KEY_SIZE);
         }
         try {
-            byte[] data = Base64.decodeBase64(content);
+            byte[] data = Base64.decodeBase64(content.getBytes());
             SecretKeySpec key = new SecretKeySpec(secret.getBytes(CHARSET_UTF8), "AES");
             Cipher cipher = Cipher.getInstance(AES_CBC);
             byte[] ivBytes = new byte[16];

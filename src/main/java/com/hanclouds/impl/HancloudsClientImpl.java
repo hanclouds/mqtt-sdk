@@ -179,7 +179,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                         }
                         byte[] rcvData = message.getPayload();
                         if (signMode) {
-                            logger.debug("receive enc cmd: {}", Base64.encodeBase64String(rcvData));
+                            logger.debug("receive enc cmd: {}", new String(Base64.encodeBase64(rcvData)));
                             rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
                             if (rcvData == null) {
                                 logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
@@ -193,7 +193,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                         }
                         switch (cmdTopicWrapper.dataType()) {
                             case "bin": {
-                                logger.debug("receive cmd: {}", Base64.encodeBase64String(decData));
+                                logger.debug("receive cmd: {}", new String(Base64.encodeBase64(decData)));
                                 if (callback != null) {
                                     executorService.execute(() ->
                                             callback.onRecvCommandBin(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), decData)
