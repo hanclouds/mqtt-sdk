@@ -11,7 +11,9 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -48,7 +50,7 @@ public class HancloudsClientImpl implements HancloudsClient {
     private final static String TOPIC_CMD_PREFIX = "cmd/";
 
     private static Logger logger = LoggerFactory.getLogger(HancloudsClientImpl.class);
-
+    private final Object waitWelcome = new Object();
     private MqttClient mqttClient = null;
     private String productKey;
     private String accessKey;
@@ -56,7 +58,6 @@ public class HancloudsClientImpl implements HancloudsClient {
     private String deviceKey;
     private String sessionSecret;
     private boolean signMode = false;
-    private final Object waitWelcome = new Object();
     private AbstractHancloudsCallback callback;
     private ExecutorService executorService;
 
@@ -130,7 +131,6 @@ public class HancloudsClientImpl implements HancloudsClient {
         connOpts.setCleanSession(true);
         connOpts.setAutomaticReconnect(false);
         connOpts.setMqttVersion(MQTT_VERSION_3_1_1);
-
         DeviceInfo deviceInfo = new DeviceInfo();
 
         try {
@@ -138,6 +138,7 @@ public class HancloudsClientImpl implements HancloudsClient {
             mqttClient.setManualAcks(false);
             mqttClient.setCallback(new MqttCallback() {
                 private String dynamicSecret;
+
                 @Override
                 public void connectionLost(Throwable cause) {
                     executorService.execute(() -> callback.onConnectionLost());
@@ -193,7 +194,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                         }
                         switch (cmdTopicWrapper.dataType()) {
                             case "bin": {
-                                logger.debug("receive cmd: {}", new String(Base64.encodeBase64(decData)));
+                                logger.info("receive cmd: {}", new String(Base64.encodeBase64(decData)));
                                 if (callback != null) {
                                     executorService.execute(() ->
                                             callback.onRecvCommandBin(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), decData)
@@ -203,7 +204,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                             break;
                             case "json": {
                                 String data = new String(decData);
-                                logger.debug("receive cmd: {}", data);
+                                logger.info("receive cmd: {}", data);
                                 if (callback != null) {
                                     executorService.execute(() ->
                                             callback.onRecvCommandJson(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), data)
@@ -214,7 +215,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                             case "int": {
                                 ByteBuffer byteBuffer = ByteBuffer.wrap(decData);
                                 int value = byteBuffer.asIntBuffer().get();
-                                logger.debug("receive cmd: {}", value);
+                                logger.info("receive cmd: {}", value);
                                 if (callback != null) {
                                     executorService.execute(() ->
                                             callback.onRecvCommandInt(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), value)
@@ -225,7 +226,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                             case "double": {
                                 ByteBuffer byteBuffer = ByteBuffer.wrap(decData);
                                 double value = byteBuffer.asDoubleBuffer().get();
-                                logger.debug("receive cmd: {}", value);
+                                logger.info("receive cmd: {}", value);
                                 if (callback != null) {
                                     executorService.execute(() ->
                                             callback.onRecvCommandDouble(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), value)
@@ -248,6 +249,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                         }
                     }
                 }
+
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
                 }
@@ -258,7 +260,7 @@ public class HancloudsClientImpl implements HancloudsClient {
             if (mqttClient.isConnected()) {
                 if (deviceInfo.getDeviceKey() != null) {
                     this.deviceKey = deviceInfo.getDeviceKey();
-                    if (this.sessionSecret == null){
+                    if (this.sessionSecret == null) {
                         this.sessionSecret = deviceInfo.getSessionSecret();
                     }
                     return deviceInfo;
@@ -364,20 +366,24 @@ public class HancloudsClientImpl implements HancloudsClient {
         try {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setInstanceFollowRedirects(true);
             connection.setConnectTimeout(3000);
-            connection.setDoOutput(true);
             connection.connect();
             int rspCode = connection.getResponseCode();
             String ip;
             if (rspCode == HTTP_RESPONSE_OK) {
-                InputStream inputStream = connection.getInputStream();
-                byte[] data = new byte[inputStream.available()];
-                inputStream.read(data, 0, data.length);
-                ip = new String(data);
+                InputStream in = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                StringBuilder response = new StringBuilder();
+                String line;
+                while (null != (line = reader.readLine())) {
+                    response.append(line);
+                }
+                ip = response.toString();
                 //return "tcp://118.178.153.178:1883";
                 return "tcp://" + ip + ":1883";
+            } else {
+                logger.error("get mqtt address failed. http response code = {}", rspCode);
             }
             return null;
         } catch (Exception e) {
@@ -466,7 +472,7 @@ public class HancloudsClientImpl implements HancloudsClient {
             logger.info("publish data on topic {}", topic);
             return true;
         } catch (Exception e) {
-            logger.error("error occur when publish!");
+            logger.error("error occur when publish!, {}", e);
             return false;
         }
     }
@@ -480,7 +486,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                 waitWelcome.wait(10000);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("waitWelcome error! e={}", e);
         }
     }
 
@@ -490,7 +496,7 @@ public class HancloudsClientImpl implements HancloudsClient {
                 waitWelcome.notify();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("notifyWelcome error! e={}", e);
         }
     }
 }

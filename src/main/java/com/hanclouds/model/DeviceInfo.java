@@ -2,6 +2,7 @@ package com.hanclouds.model;
 
 /**
  * 设备通过mqtt登陆成功后服务端返回的设备信息
+ *
  * @author szl
  * @date 2018/7/15
  */

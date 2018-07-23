@@ -14,8 +14,8 @@ public class Test1 {
         HancloudsClient hancloudsClient = HanCloudsClientFactory.getClient();
         MyCallBack callBack = new MyCallBack();
         hancloudsClient.init("X1UoJ1HY", "ygb4jEUb", "vMDZ0Z9D3poaUdfo", callBack);
-        DeviceInfo deviceInfo = hancloudsClient.connect("typeSzl", "snSzl0", true, null);
 
+        DeviceInfo deviceInfo = hancloudsClient.connect("typeSzl", "snSzl0", true, null);
         System.out.println("the one round");
         int i = 0;
         Random random = new Random();
