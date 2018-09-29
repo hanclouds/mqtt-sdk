@@ -174,12 +174,12 @@ public class HancloudsClientImpl implements HancloudsClient {
                         }
                         notifyWelcome();
                     } else if (topic.startsWith(TOPIC_CMD_PREFIX)) {
-                        // recieve command message
-                        if (sessionSecret == null) {
-                            throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
-                        }
                         byte[] rcvData = message.getPayload();
                         if (signMode) {
+                            // recieve command message
+                            if (sessionSecret == null) {
+                                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
+                            }
                             logger.debug("receive enc cmd: {}", new String(Base64.encodeBase64(rcvData)));
                             rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
                             if (rcvData == null) {
@@ -472,7 +472,7 @@ public class HancloudsClientImpl implements HancloudsClient {
             logger.info("publish data on topic {}", topic);
             return true;
         } catch (Exception e) {
-            logger.error("error occur when publish!, {}", e);
+            logger.error("error occur when publish! {}", e);
             return false;
         }
     }
