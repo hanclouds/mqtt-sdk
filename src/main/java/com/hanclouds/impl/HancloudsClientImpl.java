@@ -343,33 +343,51 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     @Override
-    public boolean uploadFloat(String stream, byte[] data) {
-        return false;
+    public boolean uploadFloat(String stream, float data) {
+        String topic = "data/" + deviceKey + "/" + stream ;
+        byte[] d = new byte[4];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asFloatBuffer().put(data);
+        return publish(topic, d, 0);
     }
 
     @Override
-    public boolean uploadEnum(String stream, byte[] data) {
-        return false;
+    public boolean uploadEnum(String stream, int data) {
+        String topic = "data/" + deviceKey + "/" + stream + "/int";
+        byte[] d = new byte[4];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asIntBuffer().put(data);
+        return publish(topic, d, 0);
     }
 
     @Override
-    public boolean uploadDate(String stream, byte[] data) {
-        return false;
+    public boolean uploadDate(String stream, long data) {
+        String topic = "data/" + deviceKey + "/" + stream ;
+        byte[] d = new byte[4];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asLongBuffer().put(data);
+        return publish(topic, d, 0);
     }
 
     @Override
-    public boolean uploadArray(String stream, byte[] data) {
-        return false;
+    public boolean uploadArray(String stream, String data) {
+        String topic = "data/" + deviceKey + "/" + stream + "/string";
+        byte[] d = data.getBytes();
+        return publish(topic, d, 0);
     }
 
     @Override
-    public boolean uploadGps(String stream, byte[] data) {
-        return false;
+    public boolean uploadGps(String stream, String data) {
+        String topic = "data/" + deviceKey + "/" + stream + "/json";
+        byte[] d = data.getBytes();
+        return publish(topic, d, 0);
     }
 
     @Override
-    public boolean uploadBoolean(String stream, byte[] data) {
-        return false;
+    public boolean uploadBoolean(String stream, String data) {
+        String topic = "data/" + deviceKey + "/" + stream + "/string";
+        byte[] d = data.getBytes();
+        return publish(topic, d, 0);
     }
 
     @Override

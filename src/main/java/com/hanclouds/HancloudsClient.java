@@ -102,7 +102,7 @@ public interface HancloudsClient {
      * @param data   二进制字节数组
      * @return 成功返回true，失败返回false
      */
-    boolean uploadFloat(String stream, byte[] data);
+    boolean uploadFloat(String stream, float data);
 
     /**
      * 向HanClouds上传一个enum类型数据对象
@@ -111,7 +111,7 @@ public interface HancloudsClient {
      * @param data   二进制字节数组
      * @return 成功返回true，失败返回false
      */
-    boolean uploadEnum(String stream, byte[] data);
+    boolean uploadEnum(String stream, int data);
 
     /**
      * 向HanClouds上传一个date类型数据对象
@@ -120,7 +120,7 @@ public interface HancloudsClient {
      * @param data   二进制字节数组
      * @return 成功返回true，失败返回false
      */
-    boolean uploadDate(String stream, byte[] data);
+    boolean uploadDate(String stream, long data);
 
     /**
      * 向HanClouds上传一个array类型数据对象
@@ -129,7 +129,7 @@ public interface HancloudsClient {
      * @param data   二进制字节数组
      * @return 成功返回true，失败返回false
      */
-    boolean uploadArray(String stream, byte[] data);
+    boolean uploadArray(String stream, String data);
 
     /**
      * 向HanClouds上传一个Gps类型数据对象
@@ -138,7 +138,7 @@ public interface HancloudsClient {
      * @param data   二进制字节数组
      * @return 成功返回true，失败返回false
      */
-    boolean uploadGps(String stream, byte[] data);
+    boolean uploadGps(String stream, String data);
 
     /**
      * 向HanClouds上传一个boolean类型数据对象
@@ -147,7 +147,7 @@ public interface HancloudsClient {
      * @param data   二进制字节数组
      * @return 成功返回true，失败返回false
      */
-    boolean uploadBoolean(String stream, byte[] data);
+    boolean uploadBoolean(String stream, String data);
 
 
 
