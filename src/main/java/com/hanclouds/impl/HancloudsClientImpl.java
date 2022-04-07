@@ -1,6 +1,7 @@
 package com.hanclouds.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.hanclouds.HancloudsClient;
 import com.hanclouds.model.DeviceInfo;
 import com.hanclouds.model.WelcomeInfo;
@@ -17,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -353,17 +355,18 @@ public class HancloudsClientImpl implements HancloudsClient {
 
     @Override
     public boolean uploadEnum(String stream, int data) {
-        String topic = "data/" + deviceKey + "/" + stream + "/int";
-        byte[] d = new byte[4];
-        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
-        byteBuffer.asIntBuffer().put(data);
-        return publish(topic, d, 0);
+        return uploadInt(stream, data);
     }
 
     @Override
     public boolean uploadDate(String stream, long data) {
+        return uploadLong(stream, data);
+    }
+
+    @Override
+    public boolean uploadLong(String stream, long data) {
         String topic = "data/" + deviceKey + "/" + stream ;
-        byte[] d = new byte[4];
+        byte[] d = new byte[8];
         ByteBuffer byteBuffer = ByteBuffer.wrap(d);
         byteBuffer.asLongBuffer().put(data);
         return publish(topic, d, 0);
@@ -371,23 +374,17 @@ public class HancloudsClientImpl implements HancloudsClient {
 
     @Override
     public boolean uploadArray(String stream, String data) {
-        String topic = "data/" + deviceKey + "/" + stream + "/string";
-        byte[] d = data.getBytes();
-        return publish(topic, d, 0);
+        return uploadString(stream, data);
     }
 
     @Override
     public boolean uploadGps(String stream, String data) {
-        String topic = "data/" + deviceKey + "/" + stream + "/json";
-        byte[] d = data.getBytes();
-        return publish(topic, d, 0);
+        return uploadJson(stream, data);
     }
 
     @Override
     public boolean uploadBoolean(String stream, String data) {
-        String topic = "data/" + deviceKey + "/" + stream + "/string";
-        byte[] d = data.getBytes();
-        return publish(topic, d, 0);
+        return uploadString(stream, data);
     }
 
     @Override
@@ -400,6 +397,213 @@ public class HancloudsClientImpl implements HancloudsClient {
     public void publishCmdAck(String commandId) {
         String topic = "cmdack/" + deviceKey + "/" + commandId;
         publish(topic, null, 0);
+    }
+
+    @Override
+    public boolean publishEvent(String identifier, String data) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("event/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(identifier);
+        String topic = builder.toString();
+        return publish(topic, data.getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyUploadStructure(List<String> snList) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("proxy/");
+        builder.append("structureUp");
+        String topic = builder.toString();
+        JSONObject object = new JSONObject();
+        object.put("slaveDeviceSn", snList);
+        return publish(topic, object.toJSONString().getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyUploadStructureOnly(List<String> snList) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("proxy/");
+        builder.append("structureUpOnly");
+        String topic = builder.toString();
+        JSONObject object = new JSONObject();
+        object.put("slaveDeviceSn", snList);
+        return publish(topic, object.toJSONString().getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyGetStructure() {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("proxy/");
+        builder.append("structureGet");
+        String topic = builder.toString();
+        JSONObject object = new JSONObject();
+        object.put("connDeviceKey", deviceKey);
+        return publish(topic, object.toJSONString().getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyStatusOnline(List<String> onlineList) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("proxy/");
+        builder.append("structureStatus");
+        String topic = builder.toString();
+        JSONObject object = new JSONObject();
+        object.put("onlineSns", onlineList);
+        return publish(topic, object.toJSONString().getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyStatusOffline(List<String> offlineList) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("proxy/");
+        builder.append("structureStatus");
+        String topic = builder.toString();
+        JSONObject object = new JSONObject();
+        object.put("offlineSns", offlineList);
+        return publish(topic, object.toJSONString().getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyUploadInt(String stream, int data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        builder.append("/int");
+        String topic = builder.toString();
+        byte[] d = new byte[4];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asIntBuffer().put(data);
+        return publish(topic, d, 0);
+    }
+
+    @Override
+    public boolean proxyUploadDouble(String stream, double data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        builder.append("/double");
+        String topic = builder.toString();
+        byte[] d = new byte[8];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asDoubleBuffer().put(data);
+        return publish(topic, d, 0);
+    }
+
+    @Override
+    public boolean proxyUploadBin(String stream, byte[] data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        builder.append("/bin");
+        String topic = builder.toString();
+        return publish(topic, data, 0);
+    }
+
+    @Override
+    public boolean proxyUploadString(String stream, String data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        builder.append("/string");
+        String topic = builder.toString();
+        return publish(topic, data.getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyUploadFloat(String stream, float data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        String topic = builder.toString();
+        byte[] d = new byte[4];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asFloatBuffer().put(data);
+        return publish(topic, d, 0);
+    }
+
+    @Override
+    public boolean proxyUploadJson(String stream, String data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        builder.append("/json");
+        String topic = builder.toString();
+        return publish(topic, data.getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyUploadEnum(String stream, int data, String deviceKey) {
+        return proxyUploadInt(stream, data, deviceKey);
+    }
+
+    @Override
+    public boolean proxyUploadDate(String stream, long data, String deviceKey) {
+        return proxyUploadLong(stream, data, deviceKey);
+    }
+
+    @Override
+    public boolean proxyUploadLong(String stream, long data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("data/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(stream);
+        String topic = builder.toString();
+        byte[] d = new byte[8];
+        ByteBuffer byteBuffer = ByteBuffer.wrap(d);
+        byteBuffer.asLongBuffer().put(data);
+        return publish(topic, d, 0);
+    }
+
+    @Override
+    public boolean proxyUploadArray(String stream, String data, String deviceKey) {
+        return proxyUploadString(stream, data, deviceKey);
+    }
+
+    @Override
+    public boolean proxyUploadGps(String stream, String data, String deviceKey) {
+        return proxyUploadJson(stream, data, deviceKey);
+    }
+
+    @Override
+    public boolean proxyUploadBoolean(String stream, String data, String deviceKey) {
+        return proxyUploadString(stream, data, deviceKey);
+    }
+
+    @Override
+    public boolean proxyPublishCmdAck(String commandId, String data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("cmdack/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(commandId);
+        String topic = builder.toString();
+        return publish(topic, data.getBytes(), 0);
+    }
+
+    @Override
+    public boolean proxyPublishEvent(String identifier, String data, String deviceKey) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("event/");
+        builder.append(deviceKey);
+        builder.append("/");
+        builder.append(identifier);
+        String topic = builder.toString();
+        return publish(topic, data.getBytes(), 0);
     }
 
     private String getMqttGatewayIp(String productKey, String sn) {

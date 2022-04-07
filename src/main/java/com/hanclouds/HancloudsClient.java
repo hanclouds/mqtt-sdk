@@ -3,6 +3,8 @@ package com.hanclouds;
 import com.hanclouds.impl.AbstractHancloudsCallback;
 import com.hanclouds.model.DeviceInfo;
 
+import java.util.List;
+
 /**
  * 设备侧接入HanClouds时的Client
  *
@@ -123,6 +125,15 @@ public interface HancloudsClient {
     boolean uploadDate(String stream, long data);
 
     /**
+     * 向HanClouds上传一个long类型数据对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   长整型值
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadLong(String stream, long data);
+
+    /**
      * 向HanClouds上传一个array类型数据对象
      *
      * @param stream 数据流名字，为字母、数字、下划线组成的字符串
@@ -149,9 +160,6 @@ public interface HancloudsClient {
      */
     boolean uploadBoolean(String stream, String data);
 
-
-
-
     /**
      * 向 HanClouds 发送InitAck消息，告知HanClouds设备侧已经收到设备及其鉴权数据
      */
@@ -163,4 +171,189 @@ public interface HancloudsClient {
      * @param commandId 命令标识码
      */
     void publishCmdAck(String commandId);
+
+    /**
+     * 向HanClouds发送event类型数据
+     *
+     * @param identifier 事件标识
+     * @param data 事件数据
+     */
+    boolean publishEvent(String identifier, String data);
+
+    /**
+     * 网关向HanClouds代理上报子设备拓扑关系，平台返回全量子设备信息列表
+     *
+     * @param snList   子设备sn号列表
+     * @return 成功返回true，失败返回false
+     */
+    boolean proxyUploadStructure(List<String> snList);
+
+    /**
+     * 网关向HanClouds代理上报子设备拓扑关系，平台只返回上报的子设备列表
+     *
+     * @param snList   子设备sn号列表
+     * @return 成功返回true，失败返回false
+     */
+    boolean proxyUploadStructureOnly(List<String> snList);
+
+    /**
+     * 网关向HanClouds请求子设备拓扑关系
+     *
+     * @return 成功返回true，失败返回false
+     */
+    boolean proxyGetStructure();
+
+    /**
+     * 网关向HanClouds同步子设备上线
+     *
+     * @param onlineList   子设备sn号列表
+     * @return 成功返回true，失败返回false
+     */
+    boolean proxyStatusOnline(List<String> onlineList);
+
+    /**
+     * 网关向HanClouds同步子设备下线
+     *
+     * @param offlineList   子设备sn号列表
+     * @return 成功返回true，失败返回false
+     */
+    boolean proxyStatusOffline(List<String> offlineList);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个整数
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   整数值
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadInt(String stream, int data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个浮点数
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   浮点数
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadDouble(String stream, double data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个二进制对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadBin(String stream, byte[] data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个字符串
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   字符串
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadString(String stream, String data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个浮点数
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   浮点数
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadFloat(String stream, float data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个JSON对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   字符串形式的json对象
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadJson(String stream, String data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个enum类型数据
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   整形
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadEnum(String stream, int data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个date类型数据
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   长整形
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadDate(String stream, long data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个long类型数据
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   长整形
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadLong(String stream, long data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个数组类型数据
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   字符串
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadArray(String stream, String data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个gps数据
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   字符串
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadGps(String stream, String data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds上传一个布尔类型数据
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   字符串
+     * @param deviceKey   被代理的子设备的deviceKey
+     * @return 成功时返回true
+     */
+    boolean proxyUploadBoolean(String stream, String data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds发送event类型数据
+     *
+     * @param commandId 命令标识符
+     * @param data 命令回复数据
+     * @param deviceKey   被代理的子设备的deviceKey
+     */
+    boolean proxyPublishCmdAck(String commandId, String data, String deviceKey);
+
+    /**
+     * 网关代理子设备向HanClouds发送event类型数据
+     *
+     * @param identifier 事件标识
+     * @param data 事件数据
+     * @param deviceKey   被代理的子设备的deviceKey
+     */
+    boolean proxyPublishEvent(String identifier, String data, String deviceKey);
 }
