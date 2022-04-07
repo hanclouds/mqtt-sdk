@@ -96,6 +96,63 @@ public interface HancloudsClient {
     boolean uploadBin(String stream, byte[] data);
 
     /**
+     * 向HanClouds上传一个双精度浮点数对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadFloat(String stream, byte[] data);
+
+    /**
+     * 向HanClouds上传一个enum类型数据对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadEnum(String stream, byte[] data);
+
+    /**
+     * 向HanClouds上传一个date类型数据对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadDate(String stream, byte[] data);
+
+    /**
+     * 向HanClouds上传一个array类型数据对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadArray(String stream, byte[] data);
+
+    /**
+     * 向HanClouds上传一个Gps类型数据对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadGps(String stream, byte[] data);
+
+    /**
+     * 向HanClouds上传一个boolean类型数据对象
+     *
+     * @param stream 数据流名字，为字母、数字、下划线组成的字符串
+     * @param data   二进制字节数组
+     * @return 成功返回true，失败返回false
+     */
+    boolean uploadBoolean(String stream, byte[] data);
+
+
+
+
+    /**
      * 向 HanClouds 发送InitAck消息，告知HanClouds设备侧已经收到设备及其鉴权数据
      */
     void publishInitAck();

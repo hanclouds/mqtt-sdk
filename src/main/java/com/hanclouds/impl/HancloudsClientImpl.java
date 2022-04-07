@@ -343,6 +343,36 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     @Override
+    public boolean uploadFloat(String stream, byte[] data) {
+        return false;
+    }
+
+    @Override
+    public boolean uploadEnum(String stream, byte[] data) {
+        return false;
+    }
+
+    @Override
+    public boolean uploadDate(String stream, byte[] data) {
+        return false;
+    }
+
+    @Override
+    public boolean uploadArray(String stream, byte[] data) {
+        return false;
+    }
+
+    @Override
+    public boolean uploadGps(String stream, byte[] data) {
+        return false;
+    }
+
+    @Override
+    public boolean uploadBoolean(String stream, byte[] data) {
+        return false;
+    }
+
+    @Override
     public void publishInitAck() {
         String topic = "initack/" + deviceKey;
         publish(topic, null, 0);
