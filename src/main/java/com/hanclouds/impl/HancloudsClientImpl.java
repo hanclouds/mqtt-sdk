@@ -1,10 +1,10 @@
 package com.hanclouds.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hanclouds.HancloudsClient;
-import com.hanclouds.model.DeviceInfo;
-import com.hanclouds.model.WelcomeInfo;
+import com.hanclouds.model.*;
 import com.hanclouds.util.CmdTopicWrapper;
 import com.hanclouds.util.CryptoUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -18,7 +18,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,6 +58,26 @@ public class HancloudsClientImpl implements HancloudsClient {
      * 下发模板命令的topic前缀
      */
     private final static String TOPIC_CTL_PREFIX = "ctl/";
+    /**
+     * ERROR的topic前缀
+     */
+    private final static String TOPIC_ERROR_PREFIX = "$error/";
+    /**
+     * rsp/proxy/notify/的topic前缀
+     */
+    private final static String TOPIC_PROXY_PREFIX = "rsp/proxy/notify/";
+    /**
+     * sync的topic前缀
+     */
+    private final static String TOPIC_SYNC_PREFIX = "sync/";
+    /**
+     * direct的topic前缀
+     */
+    private final static String TOPIC_DIRECT_PREFIX = "direct/";
+    /**
+     * version的topic前缀
+     */
+    private final static String TOPIC_VERSION_PREFIX = "version/";
 
     private static Logger logger = LoggerFactory.getLogger(HancloudsClientImpl.class);
     private final Object waitWelcome = new Object();
@@ -267,7 +289,18 @@ public class HancloudsClientImpl implements HancloudsClient {
                         }
                     }else if(topic.startsWith(TOPIC_CTL_PREFIX)){
                         messageArrivedCtl(topic, message);
+                    }else if(topic.startsWith(TOPIC_ERROR_PREFIX)){
+                        messageArrivedError(topic,message);
+                    }else if(topic.startsWith(TOPIC_SYNC_PREFIX)){
+                        messageArrivedSync(topic,message);
+                    }else if(topic.startsWith(TOPIC_DIRECT_PREFIX)){
+                        messageArrivedError(topic,message);
+                    }else if(topic.startsWith(TOPIC_VERSION_PREFIX)){
+                        messageArrivedError(topic,message);
+                    }else if (topic.startsWith(TOPIC_PROXY_PREFIX)){
+                        messageArrivedProxy(topic,message);
                     }
+
                 }
 
                 @Override
@@ -298,6 +331,25 @@ public class HancloudsClientImpl implements HancloudsClient {
         }
         return null;
     }
+    private void messageArrivedError(String topic, MqttMessage message) throws Exception{
+        byte[] rcvData = message.getPayload();
+        if (signMode) {
+            // recieve command message
+            if (sessionSecret == null) {
+                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
+            }
+            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
+            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
+            if (rcvData == null) {
+                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
+                return;
+            }
+        }
+
+        String decData = new String(rcvData);
+        logger.info("receive error: {}", new String(decData));
+
+    }
 
     private void messageArrivedCtl(String topic, MqttMessage message) throws Exception{
         byte[] rcvData = message.getPayload();
@@ -322,6 +374,70 @@ public class HancloudsClientImpl implements HancloudsClient {
         if (callback != null) {
             executorService.execute(() ->
                     callback.onRecvCommandTemplate(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), rcv)
+            );
+        }
+    }
+
+    private void messageArrivedSync(String topic, MqttMessage message) throws Exception{
+        byte[] rcvData = message.getPayload();
+        if (signMode) {
+            // recieve command message
+            if (sessionSecret == null) {
+                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
+            }
+            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
+            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
+            if (rcvData == null) {
+                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
+                return;
+            }
+        }
+        CmdTopicWrapper cmdTopicWrapper = new CmdTopicWrapper();
+        if (!cmdTopicWrapper.init(topic)) {
+            logger.warn("the topic is error.");
+        }
+        String rcv = new String(rcvData);
+        List<StructureInfo> structureInfoList = JSONArray.parseArray(rcv,StructureInfo.class);
+        logger.info("receive ctl: {}", rcv);
+        if (callback != null) {
+            executorService.execute(() ->
+                    callback.onRecvCommandSync(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), structureInfoList)
+            );
+        }
+    }
+
+    private void messageArrivedProxy(String topic, MqttMessage message) throws Exception{
+        byte[] rcvData = message.getPayload();
+        if (signMode) {
+            // recieve command message
+            if (sessionSecret == null) {
+                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
+            }
+            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
+            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
+            if (rcvData == null) {
+                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
+                return;
+            }
+        }
+        CmdTopicWrapper cmdTopicWrapper = new CmdTopicWrapper();
+        if (!cmdTopicWrapper.init(topic)) {
+            logger.warn("the topic is error.");
+        }
+        String rcv = new String(rcvData);
+
+        ProxyNotifyInfo proxyNotifyInfo = JSON.parseObject(rcv, ProxyNotifyInfo.class);
+        /*List<ProxyDeviceInfo> proxyDeviceInfos = proxyNotifyInfo.getLoginSuc();
+        List<LoginFail> loginFails = proxyNotifyInfo.getLoginFail();
+        List<OfflineSuc> offlineSuc = proxyNotifyInfo.getOfflineSuc();
+        List<OfflineFail> offlineFail = proxyNotifyInfo.getOfflineFail();
+        Map<String, Object> map = new HashMap<>();*/
+
+
+        logger.info("receive ctl: {}", rcv);
+        if (callback != null) {
+            executorService.execute(() ->
+                    callback.onRecvCommandProxy(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), proxyNotifyInfo)
             );
         }
     }
