@@ -2,6 +2,10 @@ package com.hanclouds.impl;
 
 
 import com.hanclouds.HancloudsClient;
+import com.hanclouds.model.ProxyNotifyInfo;
+import com.hanclouds.model.StructureInfo;
+
+import java.util.List;
 
 /**
  * HanCloudsCallback 回调抽象类，外部可以实现
@@ -74,6 +78,23 @@ public abstract class AbstractHancloudsCallback {
      * @param data      命令字符串
      */
     abstract public void onRecvCommandTemplate(String commandId, String deviceKey, String data);
+    /**
+     * 当收到一个Sync回复时，会回调此方法
+     *
+     * @param commandId 命令标识
+     * @param deviceKey 设备标识
+     * @param structureInfoList      list
+     */
+    abstract public void onRecvCommandSync(String commandId, String deviceKey, List<StructureInfo> structureInfoList);
+    /**
+     * 当收到一个proxy回复时，会回调此方法
+     *
+     * @param commandId 命令标识
+     * @param deviceKey 设备标识
+     * @param proxyNotifyInfo      list
+     */
+    abstract public void onRecvCommandProxy(String commandId, String deviceKey, ProxyNotifyInfo proxyNotifyInfo);
+
 
     /**
      * 向HanClouds发送某个命令响应

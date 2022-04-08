@@ -1,7 +1,11 @@
 package com.hanclouds;
 
 import com.hanclouds.impl.AbstractHancloudsCallback;
+import com.hanclouds.model.ProxyNotifyInfo;
+import com.hanclouds.model.StructureInfo;
 import org.apache.commons.codec.binary.Base64;
+
+import java.util.List;
 
 
 public class MyCallBack extends AbstractHancloudsCallback {
@@ -49,4 +53,16 @@ public class MyCallBack extends AbstractHancloudsCallback {
     public void onRecvCommandTemplate(String commandId, String deviceKey, String data) {
 
     }
+
+    @Override
+    public void onRecvCommandSync(String commandId, String deviceKey, List<StructureInfo> structureInfoList) {
+
+    }
+
+    @Override
+    public void onRecvCommandProxy(String commandId, String deviceKey, ProxyNotifyInfo proxyNotifyInfo) {
+
+    }
+
+
 }
