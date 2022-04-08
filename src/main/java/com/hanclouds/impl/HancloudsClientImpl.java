@@ -50,6 +50,10 @@ public class HancloudsClientImpl implements HancloudsClient {
      * 下发命令的topic前缀
      */
     private final static String TOPIC_CMD_PREFIX = "cmd/";
+    /**
+     * 下发模板命令的topic前缀
+     */
+    private final static String TOPIC_CTL_PREFIX = "ctl/";
 
     private static Logger logger = LoggerFactory.getLogger(HancloudsClientImpl.class);
     private final Object waitWelcome = new Object();
@@ -249,6 +253,8 @@ public class HancloudsClientImpl implements HancloudsClient {
                             default: {
                             }
                         }
+                    }else if(topic.startsWith(TOPIC_CTL_PREFIX)){
+                        messageArrivedCtl(topic, message);
                     }
                 }
 
@@ -279,6 +285,33 @@ public class HancloudsClientImpl implements HancloudsClient {
             logger.error("error occur when connect. {}", e);
         }
         return null;
+    }
+
+    private void messageArrivedCtl(String topic, MqttMessage message) throws Exception{
+        byte[] rcvData = message.getPayload();
+        if (signMode) {
+            // recieve command message
+            if (sessionSecret == null) {
+                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
+            }
+            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
+            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
+            if (rcvData == null) {
+                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
+                return;
+            }
+        }
+        CmdTopicWrapper cmdTopicWrapper = new CmdTopicWrapper();
+        if (!cmdTopicWrapper.init(topic)) {
+            logger.warn("the topic is error.");
+        }
+        String rcv = new String(rcvData);
+        logger.info("receive ctl: {}", rcv);
+        if (callback != null) {
+            executorService.execute(() ->
+                    callback.onRecvCommandTemplate(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), rcv)
+            );
+        }
     }
 
     @Override

@@ -11,12 +11,14 @@ package com.hanclouds.util;
 public class CmdTopicWrapper {
 
     private final static String TOPIC_CMDACK_PREFIX = "cmd/";
+    private final static String TOPIC_CTLACK_PREFIX="ctl/";
     private final static int ITEM_COUNT_CMDACK_TOPIC = 4;
 
     private String topic;
     private String deviceKey;
     private String commandId;
     private String dataType;
+    private String dataTemplate;
 
     public boolean init(String topic) {
         if (topic.startsWith(TOPIC_CMDACK_PREFIX)) {
@@ -26,6 +28,16 @@ public class CmdTopicWrapper {
                 deviceKey = result[1];
                 commandId = result[2];
                 dataType = result[3];
+                return true;
+            }
+        }
+        if (topic.startsWith(TOPIC_CTLACK_PREFIX)) {
+            this.topic = topic;
+            String[] result = topic.split("/");
+            if (result.length == ITEM_COUNT_CMDACK_TOPIC) {
+                deviceKey = result[1];
+                commandId = result[2];
+                dataTemplate = result[3];
                 return true;
             }
         }

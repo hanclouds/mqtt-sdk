@@ -67,6 +67,15 @@ public abstract class AbstractHancloudsCallback {
     abstract public void onRecvCommandBin(String commandId, String deviceKey, byte[] data);
 
     /**
+     * 当收到一个ctl回复时，会回调此方法
+     *
+     * @param commandId 命令标识
+     * @param deviceKey 设备标识
+     * @param data      命令字符串
+     */
+    abstract public void onRecvCommandTemplate(String commandId, String deviceKey, String data);
+
+    /**
      * 向HanClouds发送某个命令响应
      *
      * @param commandId 命令标识

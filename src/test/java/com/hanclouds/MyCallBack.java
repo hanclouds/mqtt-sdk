@@ -44,4 +44,9 @@ public class MyCallBack extends AbstractHancloudsCallback {
         System.out.println();
         sendCommandAck(commandId);
     }
+
+    @Override
+    public void onRecvCommandTemplate(String commandId, String deviceKey, String data) {
+
+    }
 }
