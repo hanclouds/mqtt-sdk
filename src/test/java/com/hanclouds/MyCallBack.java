@@ -57,7 +57,7 @@ public class MyCallBack extends AbstractHancloudsCallback {
 
     @Override
     public void onRecvCommandTemplate(String commandId, String deviceKey, String data) {
-
+        System.out.printf("receive command, commandId= %s, data=%s", commandId, data);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class MyCallBack extends AbstractHancloudsCallback {
 
     @Override
     public void onRecvError(String errorMsg) {
-        logger.info(errorMsg);
+        System.out.println(errorMsg);
     }
 
 
