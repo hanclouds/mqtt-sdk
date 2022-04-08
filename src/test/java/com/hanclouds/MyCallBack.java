@@ -75,5 +75,15 @@ public class MyCallBack extends AbstractHancloudsCallback {
         logger.info(errorMsg);
     }
 
+    @Override
+    public void onRecvDirect(String direct) {
+        logger.info(direct);
+    }
+
+    @Override
+    public void onRecvVersion(String version) {
+        logger.info(version);
+    }
+
 
 }

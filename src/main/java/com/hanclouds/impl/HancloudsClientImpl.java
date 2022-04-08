@@ -294,9 +294,9 @@ public class HancloudsClientImpl implements HancloudsClient {
                     }else if(topic.startsWith(TOPIC_SYNC_PREFIX)){
                         messageArrivedSync(topic,message);
                     }else if(topic.startsWith(TOPIC_DIRECT_PREFIX)){
-                        messageArrivedError(topic,message);
+                        messageArrivedDirect(topic,message);
                     }else if(topic.startsWith(TOPIC_VERSION_PREFIX)){
-                        messageArrivedError(topic,message);
+                        messageArrivedVersion(topic,message);
                     }else if (topic.startsWith(TOPIC_PROXY_PREFIX)){
                         messageArrivedProxy(topic,message);
                     }
@@ -337,6 +337,26 @@ public class HancloudsClientImpl implements HancloudsClient {
         if (callback != null) {
             executorService.execute(() ->
                     callback.onRecvError(decData)
+            );
+        }
+    }
+
+    private void messageArrivedDirect(String topic, MqttMessage message) throws Exception{
+        byte[] rcvData = message.getPayload();
+        String decData = new String(rcvData);
+        if (callback != null) {
+            executorService.execute(() ->
+                    callback.onRecvDirect(decData)
+            );
+        }
+    }
+
+    private void messageArrivedVersion(String topic, MqttMessage message) throws Exception{
+        byte[] rcvData = message.getPayload();
+        String decData = new String(rcvData);
+        if (callback != null) {
+            executorService.execute(() ->
+                    callback.onRecvVersion(decData)
             );
         }
     }

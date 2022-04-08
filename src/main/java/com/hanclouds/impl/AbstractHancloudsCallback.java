@@ -98,6 +98,20 @@ public abstract class AbstractHancloudsCallback {
     abstract public void onRecvError(String errorMsg);
 
     /**
+     * 当收到一个Direct回复时，会回调此方法
+     *
+     * @param direct      direct
+     */
+    abstract public void onRecvDirect(String direct);
+
+    /**
+     * 当收到一个Error回复时，会回调此方法
+     *
+     * @param version      version
+     */
+    abstract public void onRecvVersion(String version);
+
+    /**
      * 向HanClouds发送某个命令响应
      *
      * @param commandId 命令标识
