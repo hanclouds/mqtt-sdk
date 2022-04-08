@@ -31,13 +31,13 @@ public interface HancloudsClient {
     /**
      * 以某个设备的身份连接HanClouds，本方法会阻塞，如果鉴权成功返回设备的deviceKey和鉴权加密参数；如果失败返回null
      *
-     * @param deviceType   设备类型，为字母数字下划线组成的字符串，不能有空格和特殊字符
+     * @param isGateAway   设备类型是否为网关
      * @param sn           设备序列号，为字母数字下划线组成的字符串
      * @param signMode     是否为签名模式。签名模式则后续数据加密传输
      * @param deviceSecret 本sn对应的设备的deviceSecret，在初次创建时服务端返回
      * @return 成功则返回非NULL，失败返回NULL
      */
-    DeviceInfo connect(String deviceType, String sn, boolean signMode, String deviceSecret);
+    DeviceInfo connect(boolean isGateAway, String sn, boolean signMode, String deviceSecret);
 
     /**
      * 判断设备当前是否和服务端建立连接
@@ -155,10 +155,10 @@ public interface HancloudsClient {
      * 向HanClouds上传一个boolean类型数据对象
      *
      * @param stream 数据流名字，为字母、数字、下划线组成的字符串
-     * @param data   二进制字节数组
+     * @param data   boolean类型
      * @return 成功返回true，失败返回false
      */
-    boolean uploadBoolean(String stream, String data);
+    boolean uploadBoolean(String stream, boolean data);
 
     /**
      * 向 HanClouds 发送InitAck消息，告知HanClouds设备侧已经收到设备及其鉴权数据
@@ -333,11 +333,11 @@ public interface HancloudsClient {
      * 网关代理子设备向HanClouds上传一个布尔类型数据
      *
      * @param stream 数据流名字，为字母、数字、下划线组成的字符串
-     * @param data   字符串
+     * @param data   布尔类型数据
      * @param deviceKey   被代理的子设备的deviceKey
      * @return 成功时返回true
      */
-    boolean proxyUploadBoolean(String stream, String data, String deviceKey);
+    boolean proxyUploadBoolean(String stream, boolean data, String deviceKey);
 
     /**
      * 网关代理子设备向HanClouds发送event类型数据

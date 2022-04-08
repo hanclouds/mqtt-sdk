@@ -18,10 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -143,7 +140,7 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     @Override
-    public DeviceInfo connect(String deviceType, String sn, boolean signMode, String deviceSecret) {
+    public DeviceInfo connect(boolean isGateAway, String sn, boolean signMode, String deviceSecret) {
         if (this.mqttClient != null && this.mqttClient.isConnected()) {
             return null;
         }
@@ -151,6 +148,7 @@ public class HancloudsClientImpl implements HancloudsClient {
         String password;
         String clientId;
         String address = getMqttGatewayIp(productKey, sn);
+        String deviceType = isGateAway?"t-gateway":"t-device";
         if (signMode) {
             clientId = buildClientIdWithSign(deviceType, sn);
             userName = buildUserNameWithSign();
@@ -512,8 +510,8 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     @Override
-    public boolean uploadBoolean(String stream, String data) {
-        return uploadString(stream, data);
+    public boolean uploadBoolean(String stream, boolean data) {
+        return uploadString(stream, Boolean.toString(data));
     }
 
     @Override
@@ -709,10 +707,16 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     @Override
-    public boolean proxyUploadBoolean(String stream, String data, String deviceKey) {
-        return proxyUploadString(stream, data, deviceKey);
+    public boolean proxyUploadBoolean(String stream, boolean data, String deviceKey) {
+        return proxyUploadString(stream, Boolean.toString(data), deviceKey);
     }
 
+
+    public static void main(String[] args) {
+        String[] ints = {"sa","3a","asd"};
+        List<String> array = Arrays.asList(ints);
+        System.out.println(array.toString());
+    }
     @Override
     public boolean proxyPublishCmdAck(String commandId, String data, String deviceKey) {
         StringBuilder builder = new StringBuilder(128);
