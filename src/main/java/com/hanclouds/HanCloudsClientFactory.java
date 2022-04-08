@@ -9,6 +9,10 @@ import com.hanclouds.impl.HancloudsClientImpl;
  * @date 2018/7/15
  */
 public class HanCloudsClientFactory {
+
+    public HanCloudsClientFactory() {
+    }
+
     /**
      * 构造一个新的HanCloudsClient
      *
@@ -16,5 +20,13 @@ public class HanCloudsClientFactory {
      */
     public static HancloudsClient getClient() {
         return new HancloudsClientImpl();
+    }
+
+    public static HancloudsClient getClient(String url) {
+        return new HancloudsClientImpl(url);
+    }
+
+    public static HancloudsClient getClient(String url, String mqttIp) {
+        return new HancloudsClientImpl(url, mqttIp);
     }
 }

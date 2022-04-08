@@ -36,11 +36,13 @@ public class HancloudsClientImpl implements HancloudsClient {
     /**
      * 向HanClouds请求设备侧接入地址的restul API地址
      */
-    private final static String API_URL_HANCLOUDS_GATEWAY_IP = "http://api.hanclouds.com/api/v1/mqttGatewayIps";
+    private String API_URL_HANCLOUDS_GATEWAY_IP = "http://api.hanclouds.com/api/v1/mqttGatewayIps";
     /**
      * HTTP请求响应成功
      */
     private final static int HTTP_RESPONSE_OK = 200;
+
+    private String mqttIp;
 
     /**
      * 设备注册HanClouds时，HanClouds反馈的topic
@@ -66,6 +68,18 @@ public class HancloudsClientImpl implements HancloudsClient {
     private boolean signMode = false;
     private AbstractHancloudsCallback callback;
     private ExecutorService executorService;
+
+    public HancloudsClientImpl() {
+    }
+
+    public HancloudsClientImpl(String API_URL_HANCLOUDS_GATEWAY_IP) {
+        this.API_URL_HANCLOUDS_GATEWAY_IP = API_URL_HANCLOUDS_GATEWAY_IP;
+    }
+
+    public HancloudsClientImpl(String API_URL_HANCLOUDS_GATEWAY_IP, String mqttIp) {
+        this.API_URL_HANCLOUDS_GATEWAY_IP = API_URL_HANCLOUDS_GATEWAY_IP;
+        this.mqttIp = mqttIp;
+    }
 
     @Override
     public void init(String productKey, String accessKey, String accessSecret, AbstractHancloudsCallback callback) {
@@ -108,10 +122,8 @@ public class HancloudsClientImpl implements HancloudsClient {
 
     @Override
     public DeviceInfo connect(String deviceType, String sn, boolean signMode, String deviceSecret) {
-        if (mqttClient != null) {
-            if (mqttClient.isConnected()) {
-                return null;
-            }
+        if (this.mqttClient != null && this.mqttClient.isConnected()) {
+            return null;
         }
         String userName;
         String password;
@@ -640,6 +652,9 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     private String getMqttGatewayIp(String productKey, String sn) {
+        if (this.mqttIp != null && this.mqttIp.length() > 0) {
+            return this.mqttIp;
+        }
         StringBuilder builder = new StringBuilder(128);
         builder.append(API_URL_HANCLOUDS_GATEWAY_IP);
         builder.append("?productKey=");

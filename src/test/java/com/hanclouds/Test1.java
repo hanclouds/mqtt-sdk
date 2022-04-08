@@ -2,11 +2,13 @@ package com.hanclouds;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.hanclouds.impl.HancloudsClientImpl;
 import com.hanclouds.model.DeviceInfo;
 import com.hanclouds.util.CryptoUtils;
 import org.junit.Test;
 
-import java.util.Random;
+import java.util.*;
 
 public class Test1 {
     @Test
@@ -147,5 +149,35 @@ public class Test1 {
 
         hancloudsClient.close();
         System.out.println("completed!");
+    }
+
+    @Test
+    public void test3(){
+        HancloudsClient hancloudsClient = new HancloudsClientImpl("", "tcp://mqtt-broker-device.test.svc.cluster.local:1883");
+        hancloudsClient.init("z7HcRQmZ","FyHdVAUR","qg2VHFPKFre0Gkpe",new MyCallBack());
+        DeviceInfo deviceInfo = hancloudsClient.connect("t-device", "1649386170175823352461", false, null);
+//        long value = System.currentTimeMillis();
+//        hancloudsClient.uploadDate("date", value);
+//        Double[] ints = {1.0,2.0,3.0};
+//        List<Double> array = Arrays.asList(ints);
+//        hancloudsClient.uploadArray("array", array.toString());
+//        JSONObject object = new JSONObject();
+//        object.put("lng",112);
+//        object.put("lat",171);
+//        hancloudsClient.uploadGps("gps", object.toJSONString());
+
+    }
+
+    @Test
+    public void test4(){
+        String[] ints = {"2","3"};
+        List<String> integers = Arrays.asList(ints);
+        Integer[] ins = {1,3};
+        List<Integer> sda = Arrays.asList(ins);
+        Double[] dous = {1.3,3.1};
+        List<Double> sdad = Arrays.asList(dous);
+        System.out.println(integers);
+        System.out.println(sda);
+        System.out.println(sdad);
     }
 }
