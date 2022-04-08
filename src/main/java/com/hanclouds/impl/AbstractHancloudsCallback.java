@@ -81,20 +81,21 @@ public abstract class AbstractHancloudsCallback {
     /**
      * 当收到一个Sync回复时，会回调此方法
      *
-     * @param commandId 命令标识
-     * @param deviceKey 设备标识
      * @param structureInfoList      list
      */
-    abstract public void onRecvCommandSync(String commandId, String deviceKey, List<StructureInfo> structureInfoList);
+    abstract public void onRecvStructureSync(List<StructureInfo> structureInfoList);
     /**
      * 当收到一个proxy回复时，会回调此方法
      *
-     * @param commandId 命令标识
-     * @param deviceKey 设备标识
-     * @param proxyNotifyInfo      list
+     * @param proxyNotifyInfo      listonRecv
      */
-    abstract public void onRecvCommandProxy(String commandId, String deviceKey, ProxyNotifyInfo proxyNotifyInfo);
-
+    abstract public void onRecvProxyNotify(ProxyNotifyInfo proxyNotifyInfo);
+    /**
+     * 当收到一个Error回复时，会回调此方法
+     *
+     * @param errorMsg      errorMsg
+     */
+    abstract public void onRecvError(String errorMsg);
 
     /**
      * 向HanClouds发送某个命令响应

@@ -152,10 +152,14 @@ public class Test1 {
     }
 
     @Test
-    public void test3(){
+    public void test3() throws InterruptedException {
         HancloudsClient hancloudsClient = new HancloudsClientImpl("", "tcp://mqtt-broker-device.test.svc.cluster.local:1883");
         hancloudsClient.init("z7HcRQmZ","FyHdVAUR","qg2VHFPKFre0Gkpe",new MyCallBack());
-        DeviceInfo deviceInfo = hancloudsClient.connect("t-device", "1649386170175823352461", false, null);
+        DeviceInfo deviceInfo = hancloudsClient.connect("t-device", "16492146476839435769481", false, null);
+        List<String> list = Arrays.asList("16494032837884253617428");
+        hancloudsClient.proxyStatusOnline(list);
+        Thread.sleep(1000);
+        hancloudsClient.proxyUploadString("string","sss","f6c6fe6eec42443d98a7115bbce89f79");
 //        long value = System.currentTimeMillis();
 //        hancloudsClient.uploadDate("date", value);
 //        Double[] ints = {1.0,2.0,3.0};

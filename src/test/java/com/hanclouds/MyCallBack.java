@@ -1,14 +1,20 @@
 package com.hanclouds;
 
+import com.alibaba.fastjson.JSON;
 import com.hanclouds.impl.AbstractHancloudsCallback;
+import com.hanclouds.impl.HancloudsClientImpl;
 import com.hanclouds.model.ProxyNotifyInfo;
 import com.hanclouds.model.StructureInfo;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 
 public class MyCallBack extends AbstractHancloudsCallback {
+
+    private static Logger logger = LoggerFactory.getLogger(MyCallBack.class);
     @Override
     public void onConnectionLost() {
         System.out.println("the connection lost!");
@@ -55,13 +61,18 @@ public class MyCallBack extends AbstractHancloudsCallback {
     }
 
     @Override
-    public void onRecvCommandSync(String commandId, String deviceKey, List<StructureInfo> structureInfoList) {
-
+    public void onRecvStructureSync(List<StructureInfo> structureInfoList) {
+        System.out.println(JSON.toJSONString(structureInfoList));
     }
 
     @Override
-    public void onRecvCommandProxy(String commandId, String deviceKey, ProxyNotifyInfo proxyNotifyInfo) {
+    public void onRecvProxyNotify(ProxyNotifyInfo proxyNotifyInfo) {
+        System.out.println(JSON.toJSONString(proxyNotifyInfo));
+    }
 
+    @Override
+    public void onRecvError(String errorMsg) {
+        logger.info(errorMsg);
     }
 
 

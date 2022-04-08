@@ -53,31 +53,31 @@ public class HancloudsClientImpl implements HancloudsClient {
     /**
      * 下发命令的topic前缀
      */
-    private final static String TOPIC_CMD_PREFIX = "cmd/";
+    private final static String TOPIC_CMD_PREFIX = "cmd";
     /**
      * 下发模板命令的topic前缀
      */
-    private final static String TOPIC_CTL_PREFIX = "ctl/";
+    private final static String TOPIC_CTL_PREFIX = "ctl";
     /**
      * ERROR的topic前缀
      */
-    private final static String TOPIC_ERROR_PREFIX = "$error/";
+    private final static String TOPIC_ERROR_PREFIX = "$error";
     /**
      * rsp/proxy/notify/的topic前缀
      */
-    private final static String TOPIC_PROXY_PREFIX = "rsp/proxy/notify/";
+    private final static String TOPIC_PROXY_PREFIX = "rsp/proxy/notify";
     /**
      * sync的topic前缀
      */
-    private final static String TOPIC_SYNC_PREFIX = "sync/";
+    private final static String TOPIC_SYNC_PREFIX = "sync";
     /**
      * direct的topic前缀
      */
-    private final static String TOPIC_DIRECT_PREFIX = "direct/";
+    private final static String TOPIC_DIRECT_PREFIX = "direct";
     /**
      * version的topic前缀
      */
-    private final static String TOPIC_VERSION_PREFIX = "version/";
+    private final static String TOPIC_VERSION_PREFIX = "version";
 
     private static Logger logger = LoggerFactory.getLogger(HancloudsClientImpl.class);
     private final Object waitWelcome = new Object();
@@ -333,22 +333,12 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
     private void messageArrivedError(String topic, MqttMessage message) throws Exception{
         byte[] rcvData = message.getPayload();
-        if (signMode) {
-            // recieve command message
-            if (sessionSecret == null) {
-                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
-            }
-            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
-            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
-            if (rcvData == null) {
-                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
-                return;
-            }
-        }
-
         String decData = new String(rcvData);
-        logger.info("receive error: {}", new String(decData));
-
+        if (callback != null) {
+            executorService.execute(() ->
+                    callback.onRecvError(decData)
+            );
+        }
     }
 
     private void messageArrivedCtl(String topic, MqttMessage message) throws Exception{
@@ -380,50 +370,18 @@ public class HancloudsClientImpl implements HancloudsClient {
 
     private void messageArrivedSync(String topic, MqttMessage message) throws Exception{
         byte[] rcvData = message.getPayload();
-        if (signMode) {
-            // recieve command message
-            if (sessionSecret == null) {
-                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
-            }
-            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
-            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
-            if (rcvData == null) {
-                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
-                return;
-            }
-        }
-        CmdTopicWrapper cmdTopicWrapper = new CmdTopicWrapper();
-        if (!cmdTopicWrapper.init(topic)) {
-            logger.warn("the topic is error.");
-        }
         String rcv = new String(rcvData);
         List<StructureInfo> structureInfoList = JSONArray.parseArray(rcv,StructureInfo.class);
         logger.info("receive ctl: {}", rcv);
         if (callback != null) {
             executorService.execute(() ->
-                    callback.onRecvCommandSync(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), structureInfoList)
+                    callback.onRecvStructureSync(structureInfoList)
             );
         }
     }
 
     private void messageArrivedProxy(String topic, MqttMessage message) throws Exception{
         byte[] rcvData = message.getPayload();
-        if (signMode) {
-            // recieve command message
-            if (sessionSecret == null) {
-                throw new Exception("the sessionSecret is null. maybe when you connect in signMode but you don't provide the deviceSecret");
-            }
-            logger.debug("receive enc ctl: {}", new String(Base64.encodeBase64(rcvData)));
-            rcvData = CryptoUtils.decodeWithAesCbc(sessionSecret, rcvData);
-            if (rcvData == null) {
-                logger.warn("receive data, but decrypt failed! maybe the sessionSecret is wrong");
-                return;
-            }
-        }
-        CmdTopicWrapper cmdTopicWrapper = new CmdTopicWrapper();
-        if (!cmdTopicWrapper.init(topic)) {
-            logger.warn("the topic is error.");
-        }
         String rcv = new String(rcvData);
 
         ProxyNotifyInfo proxyNotifyInfo = JSON.parseObject(rcv, ProxyNotifyInfo.class);
@@ -437,7 +395,7 @@ public class HancloudsClientImpl implements HancloudsClient {
         logger.info("receive ctl: {}", rcv);
         if (callback != null) {
             executorService.execute(() ->
-                    callback.onRecvCommandProxy(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), proxyNotifyInfo)
+                    callback.onRecvProxyNotify(proxyNotifyInfo)
             );
         }
     }
