@@ -360,7 +360,6 @@ public class HancloudsClientImpl implements HancloudsClient {
             logger.warn("the topic is error.");
         }
         String rcv = new String(rcvData);
-        logger.info("receive ctl: {}", rcv);
         if (callback != null) {
             executorService.execute(() ->
                     callback.onRecvCommandTemplate(cmdTopicWrapper.commandId(), cmdTopicWrapper.deviceKey(), rcv)
@@ -372,7 +371,6 @@ public class HancloudsClientImpl implements HancloudsClient {
         byte[] rcvData = message.getPayload();
         String rcv = new String(rcvData);
         List<StructureInfo> structureInfoList = JSONArray.parseArray(rcv,StructureInfo.class);
-        logger.info("receive ctl: {}", rcv);
         if (callback != null) {
             executorService.execute(() ->
                     callback.onRecvStructureSync(structureInfoList)
@@ -383,16 +381,8 @@ public class HancloudsClientImpl implements HancloudsClient {
     private void messageArrivedProxy(String topic, MqttMessage message) throws Exception{
         byte[] rcvData = message.getPayload();
         String rcv = new String(rcvData);
-
         ProxyNotifyInfo proxyNotifyInfo = JSON.parseObject(rcv, ProxyNotifyInfo.class);
-        /*List<ProxyDeviceInfo> proxyDeviceInfos = proxyNotifyInfo.getLoginSuc();
-        List<LoginFail> loginFails = proxyNotifyInfo.getLoginFail();
-        List<OfflineSuc> offlineSuc = proxyNotifyInfo.getOfflineSuc();
-        List<OfflineFail> offlineFail = proxyNotifyInfo.getOfflineFail();
-        Map<String, Object> map = new HashMap<>();*/
 
-
-        logger.info("receive ctl: {}", rcv);
         if (callback != null) {
             executorService.execute(() ->
                     callback.onRecvProxyNotify(proxyNotifyInfo)
