@@ -18,7 +18,7 @@ public abstract class AbstractHancloudsCallback {
     /**
      * 基于Paho mqtt client的封装
      */
-    private HancloudsClient client;
+    protected HancloudsClient client;
 
     /**
      * 当本设备从服务端断开时，会回调此方法
