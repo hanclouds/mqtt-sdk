@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -560,6 +561,18 @@ public class HancloudsClientImpl implements HancloudsClient {
     }
 
     @Override
+    public boolean proxyUploadStructureWithName(List<SlaveDeviceInfo> infoList, boolean returnAll) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("proxy/");
+        builder.append("structureUpWithName");
+        String topic = builder.toString();
+        JSONObject object = new JSONObject();
+        object.put("slaveDeviceInfos", infoList);
+        object.put("returnAllSlaves", returnAll);
+        return publish(topic, object.toJSONString().getBytes(), 0);
+    }
+
+    @Override
     public boolean proxyGetStructure() {
         StringBuilder builder = new StringBuilder(128);
         builder.append("proxy/");
@@ -713,9 +726,20 @@ public class HancloudsClientImpl implements HancloudsClient {
 
 
     public static void main(String[] args) {
-        String[] ints = {"sa","3a","asd"};
-        List<String> array = Arrays.asList(ints);
-        System.out.println(array.toString());
+        List<UpdateDeviceInfo> infoList = new ArrayList<>();
+        UpdateDeviceInfo updateDeviceInfo = new UpdateDeviceInfo();
+        updateDeviceInfo.setDeviceName("qqq");
+        updateDeviceInfo.setSn("sn1");
+        updateDeviceInfo.setDescr("111");
+        UpdateDeviceInfo updateDeviceInfo2 = new UpdateDeviceInfo();
+        updateDeviceInfo2.setDeviceName("www");
+        updateDeviceInfo2.setSn("sn12");
+        updateDeviceInfo2.setDescr("222");
+        infoList.add(updateDeviceInfo2);
+        infoList.add(updateDeviceInfo);
+        byte[] bytes = JSONArray.toJSONBytes(infoList);
+        List<DeviceInfo> sourceList = JSONArray.parseArray(new String(bytes, StandardCharsets.UTF_8), DeviceInfo.class);
+        sourceList.stream().forEach(deviceInfo -> System.out.println(JSON.toJSONString(deviceInfo)));
     }
     @Override
     public boolean proxyPublishCmdAck(String commandId, String data, String deviceKey) {
@@ -737,6 +761,14 @@ public class HancloudsClientImpl implements HancloudsClient {
         builder.append(identifier);
         String topic = builder.toString();
         return publish(topic, data.getBytes(), 0);
+    }
+
+    @Override
+    public boolean setDeviceInfo(List<UpdateDeviceInfo> infoList) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("api/setDeviceInfo");
+        String topic = builder.toString();
+        return publish(topic, JSONArray.toJSONBytes(infoList), 0);
     }
 
     private String getMqttGatewayIp(String productKey, String sn) {

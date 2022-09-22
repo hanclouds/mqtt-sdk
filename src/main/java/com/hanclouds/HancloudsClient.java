@@ -2,6 +2,8 @@ package com.hanclouds;
 
 import com.hanclouds.impl.AbstractHancloudsCallback;
 import com.hanclouds.model.DeviceInfo;
+import com.hanclouds.model.SlaveDeviceInfo;
+import com.hanclouds.model.UpdateDeviceInfo;
 
 import java.util.List;
 
@@ -189,12 +191,21 @@ public interface HancloudsClient {
     boolean proxyUploadStructure(List<String> snList);
 
     /**
-     * 网关向HanClouds代理上报子设备拓扑关系，平台只返回上报的子设备列表
+     * 网关向HanClouds代理上报子设备拓扑关系，平台返回全量子设备信息列表
      *
      * @param snList   子设备sn号列表
      * @return 成功返回true，失败返回false
      */
     boolean proxyUploadStructureOnly(List<String> snList);
+
+    /**
+     * 网关向HanClouds代理上报子设备拓扑关系携带子设备名称，平台根据参数返回子设备列表
+     *
+     * @param infoList   子设备信息列表
+     * @param returnAll   是否返回全量子设备列表
+     * @return 成功返回true，失败返回false
+     */
+    boolean proxyUploadStructureWithName(List<SlaveDeviceInfo> infoList, boolean returnAll);
 
     /**
      * 网关向HanClouds请求子设备拓扑关系
@@ -356,4 +367,11 @@ public interface HancloudsClient {
      * @param deviceKey   被代理的子设备的deviceKey
      */
     boolean proxyPublishEvent(String identifier, String data, String deviceKey);
+
+    /**
+     * 修改设备信息
+     *
+     * @param infoList 设备信息列表
+     */
+    boolean setDeviceInfo(List<UpdateDeviceInfo> infoList);
 }
