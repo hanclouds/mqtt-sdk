@@ -49,6 +49,26 @@ public class Test1 {
     }
 
     @Test
+    public void test1() {
+        HancloudsClient hancloudsClient = HanCloudsClientFactory.getClient();
+        MyCallBack callBack = new MyCallBack();
+        //hancloudsClient.init("X1UoJ1HY", "ygb4jEUb", "vMDZ0Z9D3poaUdfo", callBack);
+
+        boolean isConnected = hancloudsClient.connectByMqtt("tcp://broker.emqx.io:1883", "mqttx_5487b6c7", "huyunsen", "link$100");
+        System.out.println("the one round");
+
+
+        Random random = new Random();
+        double value = 200.0 + random.nextInt(50);
+        String stringValue = String.valueOf(value);
+        hancloudsClient.publishCollectData("huyunsen",stringValue);
+
+        hancloudsClient.disconnect();
+        hancloudsClient.close();
+        System.out.println("completed!");
+    }
+
+    @Test
     public void test2() {
         HancloudsClient hancloudsClient = HanCloudsClientFactory.getClient();
 

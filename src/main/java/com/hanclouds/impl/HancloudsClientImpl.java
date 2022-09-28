@@ -330,6 +330,59 @@ public class HancloudsClientImpl implements HancloudsClient {
         }
         return null;
     }
+
+    @Override
+    public boolean connectByMqtt(String address,String clientId,String userName,String password) {
+        if (this.mqttClient != null && this.mqttClient.isConnected()) {
+            return false;
+        }
+        //address = getMqttGatewayIp(productKey, sn);
+
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        connOpts.setUserName(userName);
+        connOpts.setPassword(password.toCharArray());
+        connOpts.setConnectionTimeout(30);
+        connOpts.setKeepAliveInterval(120);
+        connOpts.setCleanSession(true);
+        connOpts.setAutomaticReconnect(false);
+        connOpts.setMqttVersion(MQTT_VERSION_3_1_1);
+
+        try {
+            mqttClient = new MqttClient(address, clientId, null);
+            mqttClient.setManualAcks(false);
+            mqttClient.setCallback(new MqttCallback() {
+
+                @Override
+                public void connectionLost(Throwable cause) {
+                    executorService.execute(() -> callback.onConnectionLost());
+                }
+
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                    // receive welcome message
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+                }
+            });
+
+            mqttClient.connect(connOpts);
+            waitWelcome();
+            if (mqttClient.isConnected()) {
+                return true;
+            } else {
+                mqttClient.close(true);
+                mqttClient = null;
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("error occur when connect. {}", e);
+        }
+        return false;
+    }
+
     private void messageArrivedError(String topic, MqttMessage message) throws Exception{
         byte[] rcvData = message.getPayload();
         String decData = new String(rcvData);
@@ -519,6 +572,11 @@ public class HancloudsClientImpl implements HancloudsClient {
     public void publishInitAck() {
         String topic = "initack/" + deviceKey;
         publish(topic, null, 0);
+    }
+
+    @Override
+    public boolean publishCollectData(String topic,String data) {
+        return publish(topic, data.getBytes(), 0);
     }
 
     @Override

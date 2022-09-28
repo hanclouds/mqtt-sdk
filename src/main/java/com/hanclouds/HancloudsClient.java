@@ -42,6 +42,17 @@ public interface HancloudsClient {
     DeviceInfo connect(boolean isGateAway, String sn, boolean signMode, String deviceSecret);
 
     /**
+     * 通过address，clientId，userName，password等信息与服务端地址建立mqtt链接
+     *
+     * @param address   地址
+     * @param clientId   Client ID
+     * @param userName   账号
+     * @param password 密码
+     * @return 成功则返回非NULL，失败返回NULL
+     */
+    boolean connectByMqtt(String address,String clientId,String userName,String password);
+
+    /**
      * 判断设备当前是否和服务端建立连接
      *
      * @return true标识建立已经建立
@@ -166,6 +177,12 @@ public interface HancloudsClient {
      * 向 HanClouds 发送InitAck消息，告知HanClouds设备侧已经收到设备及其鉴权数据
      */
     void publishInitAck();
+
+
+    /**
+     * 向 MQTT服务端 发送消息
+     */
+    boolean publishCollectData(String topic,String data);
 
     /**
      * 向HanClouds发送命令完成相应
